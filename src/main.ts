@@ -8,9 +8,10 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
-      // transform: true,
     }),
   );
+
+  app.setGlobalPrefix("api"); // Definir o prefixo global '/api'
   await app.listen(process.env.APP_PORT ?? 3001);
 }
 bootstrap()

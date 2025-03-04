@@ -5,6 +5,8 @@ export class UserResponseDto {
     name: string;
     email: string;
     role: string;
+    password?: string;
+    refresh_token?: string;
     created_at?: Date;
     updated_at?: Date;
     deleted_at?: Date;

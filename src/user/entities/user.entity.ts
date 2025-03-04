@@ -15,7 +15,7 @@ export class User {
   @Column("varchar", { length: 255 })
   name: string;
 
-  @Column("varchar", { length: 255 })
+  @Column("varchar", { length: 255, unique: true })
   email: string;
 
   @Column("varchar", { length: 255 })
@@ -27,7 +27,10 @@ export class User {
   @Column({ nullable: true, default: "NULL" })
   refresh_token?: string;
 
-  @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+  @CreateDateColumn({
+    type: "timestamp",
+    default: () => "CURRENT_TIMESTAMP(6)",
+  })
   created_at: Date;
 
   @UpdateDateColumn({
