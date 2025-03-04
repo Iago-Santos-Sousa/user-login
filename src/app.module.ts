@@ -9,16 +9,14 @@ import { UserModule } from "./user/user.module";
 import { User } from "./user/entities/user.entity";
 import { AuthModule } from "./auth/auth.module";
 
-console.log(process.env.JWT_SECRET);
-console.log(process.env.JWT_EXPIRES);
-
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ".env",
     }),
-    UserModule,
     AuthModule,
+    UserModule,
     TypeOrmModule.forRoot({
       type: "mysql",
       host: process.env.DB_HOST,
@@ -37,6 +35,6 @@ export class AppModule implements NestModule {
   constructor(private dataSource: DataSource) {}
 
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes("*");
+    consumer.apply(LoggerMiddleware).forRoutes("/");
   }
 }

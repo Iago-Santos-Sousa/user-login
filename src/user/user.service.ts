@@ -12,7 +12,8 @@ import { User } from "./entities/user.entity";
 import { CreateUserDto } from "./dto/createUser.dto";
 import { UpdateUserDto } from "./dto/updateUser.dto";
 import { UserResponseDto } from "./dto/UserResponse.dto";
-import { console } from "inspector";
+import * as bcrypt from "bcrypt";
+const saltOrRounds = 10;
 
 @Injectable()
 export class UserService {
@@ -23,7 +24,14 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     try {
-      const user = this.userRepository.create(createUserDto);
+      const hashPassword = await bcrypt.hash(
+        createUserDto.password,
+        saltOrRounds,
+      );
+      const user = this.userRepository.create({
+        ...createUserDto,
+        password: hashPassword,
+      });
       const createdUser = await this.userRepository.save(user);
       const { password, refresh_token, ...safeUser } = createdUser;
       return {
@@ -93,7 +101,7 @@ export class UserService {
     };
   }
 
-  async findByEmail(email: string): Promise<UserResponseDto> {
+  async findByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { email: email },
       withDeleted: true,
@@ -103,10 +111,7 @@ export class UserService {
       throw new NotFoundException(
         `Usuário com E-mail: ${email} não encontrado`,
       );
-    return {
-      message: "User found",
-      user,
-    };
+    return user;
   }
 
   async update(

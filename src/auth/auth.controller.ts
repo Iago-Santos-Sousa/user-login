@@ -1,32 +1,16 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Post,
-  Request,
-  UseGuards,
-} from "@nestjs/common";
-import { AuthGuard } from "./auth.guard";
+import { Body, Controller, HttpCode, HttpStatus, Post } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { SigInDto } from "./dto/SigInDto.dto";
+import { Public } from "src/common/decorators/skipAuth.decorator";
 
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Post("login")
-  signIn(@Body() sigInDto: SigInDto) {
+  async signIn(@Body() sigInDto: SigInDto) {
     return this.authService.sigIn(sigInDto.email, sigInDto.password);
-  }
-
-  @UseGuards(AuthGuard)
-  @Get("profile")
-  getProfile(@Request() req) {
-    return req.user;
   }
 }

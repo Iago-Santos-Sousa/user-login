@@ -4,9 +4,8 @@ import { UserModule } from "../user/user.module";
 import { JwtModule } from "@nestjs/jwt";
 import { AuthController } from "./auth.controller";
 import { ConfigModule } from "@nestjs/config";
-
-console.log(process.env.JWT_SECRET);
-console.log(process.env.JWT_EXPIRES);
+import { APP_GUARD } from "@nestjs/core";
+import { AuthGuard } from "./auth.guard";
 
 @Module({
   imports: [
@@ -20,7 +19,13 @@ console.log(process.env.JWT_EXPIRES);
       signOptions: { expiresIn: process.env.JWT_EXPIRES },
     }),
   ],
-  providers: [AuthService],
+  providers: [
+    AuthService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })

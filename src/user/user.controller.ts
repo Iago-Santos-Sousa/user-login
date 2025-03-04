@@ -12,11 +12,13 @@ import {
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/createUser.dto";
 import { UpdateUserDto } from "./dto/updateUser.dto";
+import { Public } from "src/common/decorators/skipAuth.decorator";
 
 @Controller("user")
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Public()
   @Post()
   @HttpCode(201)
   create(@Body() createUserDto: CreateUserDto) {
@@ -35,7 +37,10 @@ export class UserController {
 
   @Patch(":id")
   @HttpCode(200)
-  async update(@Param("id", ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
+  async update(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     return this.userService.update(id, updateUserDto);
   }
 

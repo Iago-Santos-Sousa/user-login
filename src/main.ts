@@ -11,9 +11,11 @@ async function bootstrap() {
     }),
   );
 
-  app.setGlobalPrefix("api"); // Definir o prefixo global '/api'
+  app.setGlobalPrefix("/api"); // Definir o prefixo global '/api'
   await app.listen(process.env.APP_PORT ?? 3001);
 }
 bootstrap()
-  .then(() => console.log(`Server running on port: ${process.env.APP_PORT}`))
+  .then(() =>
+    console.log(`Server running on port: ${process.env.APP_PORT ?? 3001}`),
+  )
   .catch((err) => console.error(err));

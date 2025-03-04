@@ -6,7 +6,7 @@ export class LoggerMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const start: number = Date.now();
     console.log(
-      `Requisição feita no endpoint: ${req.baseUrl}, com o método: ${req.method}`,
+      `Requisição feita no endpoint: ${req.url}, com o método: ${req.method}`,
     );
 
     // Intercepta o método original para obter o status

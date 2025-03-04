@@ -2,6 +2,8 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { UserService } from "src/user/user.service";
 import { JwtService } from "@nestjs/jwt";
+import { SigInResponseDto } from "./dto/sigInResponse.dto";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class AuthService {
@@ -10,37 +12,30 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async sigIn(email: string, pass: string) {
-    try {
-      const user = await this.userService.findByEmail(email);
-      if (user?.user?.password !== pass) {
-        throw new UnauthorizedException();
-      }
-      console.log(process.env.JWT_SECRET);
-      console.log(process.env.JWT_EXPIRES);
-      const payload = {
-        sub: user.user.user_id,
-        username: user.user.name,
-        role: user.user.role,
-        email: user.user.email,
-      };
-      const acess_token = await this.jwtService.signAsync(payload);
-      const {
-        password,
-        created_at,
-        updated_at,
-        deleted_at,
-        refresh_token,
-        ...result
-      } = user.user;
-      return {
-        acess_token: acess_token,
-        refresh_token: refresh_token,
-        payload: { ...result },
-      };
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
+  async sigIn(email: string, pass: string): Promise<SigInResponseDto> {
+    const user = await this.userService.findByEmail(email);
+    if (!user) throw new UnauthorizedException();
+    const passwordMatch = await bcrypt.compare(pass, user.password);
+    if (!passwordMatch) throw new UnauthorizedException("Invalid credential!");
+    const payload = {
+      sub: user.user_id,
+      username: user.name,
+      role: user.role,
+      email: user.email,
+    };
+    const acess_token = await this.jwtService.signAsync(payload);
+    const {
+      password,
+      created_at,
+      updated_at,
+      deleted_at,
+      refresh_token,
+      ...result
+    } = user;
+    return {
+      acess_token: acess_token,
+      refresh_token: refresh_token,
+      payload: { ...result },
+    };
   }
 }
