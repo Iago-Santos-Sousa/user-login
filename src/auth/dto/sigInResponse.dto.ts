@@ -2,9 +2,9 @@ export class SigInResponseDto {
   acess_token: string;
   refresh_token?: string | null;
   payload: {
-    user_id: number;
-    name: string;
+    sub: number;
+    username: string;
     email: string;
-    role: string;
+    roles: string[];
   };
 }

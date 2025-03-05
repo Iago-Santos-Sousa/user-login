@@ -8,6 +8,7 @@ import { DataSource } from "typeorm";
 import { UserModule } from "./user/user.module";
 import { User } from "./user/entities/user.entity";
 import { AuthModule } from "./auth/auth.module";
+import { RolesGuardModule } from "./roles-guard/roles-guard.module";
 
 @Module({
   imports: [
@@ -15,8 +16,7 @@ import { AuthModule } from "./auth/auth.module";
       isGlobal: true,
       envFilePath: ".env",
     }),
-    AuthModule,
-    UserModule,
+
     TypeOrmModule.forRoot({
       type: "mysql",
       host: process.env.DB_HOST,
@@ -27,6 +27,9 @@ import { AuthModule } from "./auth/auth.module";
       entities: [User],
       synchronize: true,
     }),
+    UserModule,
+    AuthModule,
+    RolesGuardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

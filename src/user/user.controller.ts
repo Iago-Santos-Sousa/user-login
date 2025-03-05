@@ -13,6 +13,8 @@ import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/createUser.dto";
 import { UpdateUserDto } from "./dto/updateUser.dto";
 import { Public } from "src/common/decorators/skipAuth.decorator";
+import { Roles } from "src/common/decorators/roles.decorator";
+import { UserRole } from "src/utils/enums";
 
 @Controller("user")
 export class UserController {
@@ -25,6 +27,7 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
+  @Roles(UserRole.ADMIN)
   @Get()
   async findAll() {
     return this.userService.findAll();

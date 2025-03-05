@@ -4,13 +4,17 @@ import {
   IsOptional,
   IsString,
   Length,
+  MinLength,
+  MaxLength,
+  IsEnum,
 } from "class-validator";
 import { Transform } from "class-transformer";
+import { UserRole } from "src/utils/enums";
 
 export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
-  @Length(3)
+  @MinLength(3)
   @Transform(({ value }: { value: string }) => value?.trim()) // Remove espaços em branco
   name: string;
 
@@ -22,19 +26,21 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @IsString()
-  @Length(6)
+  @MinLength(6)
+  @MaxLength(30)
   @Transform(({ value }: { value: string }) => value?.trim())
   password: string;
 
   @IsNotEmpty({ message: "O papel/função não pode estar vazio" })
   @IsString({ message: "O papel/função deve ser uma string" })
-  @Length(4, 20, { message: "O papel/função deve ter entre 4 e 20 caracteres" })
+  @Length(4, 5, { message: "O papel/função deve ter entre 4 e 5 caracteres" })
   @Transform(({ value }: { value: string }) => value?.trim())
-  role: string;
+  @IsEnum(UserRole, { message: "O papel deve ser user ou admin" })
+  role: UserRole;
 
   @IsString()
   @IsOptional()
-  @Length(6)
+  @MinLength(6)
   @Transform(({ value }: { value: string }) => value?.trim())
   refresh_token?: string;
 }
