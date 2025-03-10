@@ -9,9 +9,9 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
-import { CreateUserDto } from "./dto/createUser.dto";
-import { UpdateUserDto } from "./dto/updateUser.dto";
-import { UserResponseDto } from "./dto/UserResponse.dto";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { UserResponseDto } from "./dto/user-response.dto";
 import * as bcrypt from "bcrypt";
 const saltOrRounds = 10;
 
@@ -60,7 +60,7 @@ export class UserService {
         role: true,
         created_at: true,
         user_id: true,
-        deleted_at: true,
+        deleted_at: false,
         updated_at: true,
         password: false,
         refresh_token: false,
@@ -68,8 +68,7 @@ export class UserService {
       withDeleted: true, // Inclui registros soft-deleted
     });
 
-    if (users?.length === 0)
-      throw new NotFoundException("Não foi encontrado usuários");
+    if (users?.length === 0) throw new NotFoundException("No users found");
     return {
       message: "Users found",
       users: users,
@@ -85,7 +84,7 @@ export class UserService {
         role: true,
         created_at: true,
         user_id: true,
-        deleted_at: true,
+        deleted_at: false,
         updated_at: true,
         password: false,
         refresh_token: false,
@@ -93,8 +92,7 @@ export class UserService {
       withDeleted: true,
     });
 
-    if (!user)
-      throw new NotFoundException(`Usuário com ID ${user_id} não encontrado`);
+    if (!user) throw new NotFoundException(`User with ID ${user_id} not found`);
     return {
       message: "User found",
       user,
@@ -108,9 +106,7 @@ export class UserService {
     });
 
     if (!user)
-      throw new NotFoundException(
-        `Usuário com E-mail: ${email} não encontrado`,
-      );
+      throw new NotFoundException(`User with Email: ${email} not found`);
     return user;
   }
 
@@ -124,28 +120,28 @@ export class UserService {
     });
 
     if (!user) {
-      throw new NotFoundException(`Usuário com id ${user_id} não encontrado`);
+      throw new NotFoundException(`User with id ${user_id} not found`);
     }
     const mergeUpdatedUser = this.userRepository.merge(user, updateUserDto);
     const updatedUser = await this.userRepository.save(mergeUpdatedUser);
     const { password, refresh_token, ...safeUser } = updatedUser;
     return {
-      message: `Usuário com ID ${user_id} atualizado`,
+      message: `User with ID ${user_id} updated`,
       user: safeUser,
     };
   }
 
-  async remove(user_id: number): Promise<{ message: string[] }> {
+  async remove(user_id: number): Promise<Pick<UserResponseDto, "message">> {
     const user = await this.userRepository.findOne({
       where: { user_id: user_id },
       withDeleted: true,
     });
     if (!user) {
-      throw new NotFoundException(`Usuário com ID ${user_id} não encontrado`);
+      throw new NotFoundException(`User with ID ${user_id} not found`);
     }
     await this.userRepository.delete(user_id);
     return {
-      message: [`Usuário com ID ${user_id} foi removido com sucesso`],
+      message: `User with ID ${user_id} was successfully removed`,
     };
   }
 }

@@ -9,13 +9,23 @@ import {
   HttpCode,
   ParseIntPipe,
 } from "@nestjs/common";
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiBody,
+  ApiTags,
+  ApiParam,
+  ApiBearerAuth,
+} from "@nestjs/swagger";
 import { UserService } from "./user.service";
-import { CreateUserDto } from "./dto/createUser.dto";
-import { UpdateUserDto } from "./dto/updateUser.dto";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
 import { Public } from "src/common/decorators/skipAuth.decorator";
 import { Roles } from "src/common/decorators/roles.decorator";
 import { UserRole } from "src/utils/enums";
+import { UserResponseDto } from "./dto/user-response.dto";
 
+@ApiTags("user")
 @Controller("user")
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -23,23 +33,92 @@ export class UserController {
   @Public()
   @Post()
   @HttpCode(201)
+  @ApiCreatedResponse({
+    description: "The record has been successfully created.",
+    type: UserResponseDto,
+  })
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
+  @ApiBearerAuth()
   @Roles(UserRole.ADMIN)
   @Get()
+  @ApiOkResponse({
+    description: "Users found",
+    example: {
+      message: "Users found",
+      users: [
+        {
+          id: 1,
+          name: "John Doe",
+          email: "john.doe@example.com",
+          role: "user",
+        },
+        {
+          id: 2,
+          name: "John Doe 2",
+          email: "john.doe2@example.com",
+          role: "admin",
+        },
+      ],
+    },
+  })
   async findAll() {
     return this.userService.findAll();
   }
 
+  @ApiBearerAuth()
   @Get(":id")
+  @ApiOkResponse({
+    description: "User found",
+    example: {
+      message: "User found",
+      user: {
+        id: 1,
+        name: "John Doe",
+        email: "john.doe@example.com",
+        role: "user",
+      },
+    },
+  })
   async findOne(@Param("id", ParseIntPipe) id: number) {
     return this.userService.findOne(id);
   }
 
+  @ApiBearerAuth()
   @Patch(":id")
   @HttpCode(200)
+  @ApiParam({
+    name: "id",
+    type: Number,
+    description: "User ID",
+  })
+  @ApiBody({
+    type: UpdateUserDto,
+    examples: {
+      example1: {
+        summary: "Partial update example",
+        value: {
+          name: "Jhon Doe Josh",
+          email: "jorge10@gmail.com",
+          role: "admin",
+        },
+      },
+    },
+  })
+  @ApiOkResponse({
+    description: "User with ID 5 updated",
+    example: {
+      message: "User with ID 5 updated",
+      user: {
+        user_id: 1,
+        name: "Jhon Doe Josh",
+        email: "jorge10@gmail.com",
+        role: "admin",
+      },
+    },
+  })
   async update(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -47,8 +126,14 @@ export class UserController {
     return this.userService.update(id, updateUserDto);
   }
 
+  @ApiBearerAuth()
+  @Roles(UserRole.ADMIN)
   @Delete(":id")
   @HttpCode(200)
+  @ApiOkResponse({
+    description: "User was successfully removed",
+    example: { message: "User with ID 5 was successfully removed" },
+  })
   async remove(@Param("id", ParseIntPipe) id: number) {
     return this.userService.remove(id);
   }

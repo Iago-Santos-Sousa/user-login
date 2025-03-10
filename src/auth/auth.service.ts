@@ -2,7 +2,7 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { UserService } from "src/user/user.service";
 import { JwtService } from "@nestjs/jwt";
-import { SigInResponseDto } from "./dto/sigInResponse.dto";
+import { SigInResponseDto } from "./dto/signin-response.dto";
 import * as bcrypt from "bcrypt";
 
 @Injectable()
