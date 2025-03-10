@@ -16,6 +16,7 @@ import {
   ApiTags,
   ApiParam,
   ApiBearerAuth,
+  ApiOperation,
 } from "@nestjs/swagger";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -25,7 +26,7 @@ import { Roles } from "src/common/decorators/roles.decorator";
 import { UserRole } from "src/utils/enums";
 import { UserResponseDto } from "./dto/user-response.dto";
 
-@ApiTags("user")
+@ApiTags("User")
 @Controller("user")
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -33,6 +34,7 @@ export class UserController {
   @Public()
   @Post()
   @HttpCode(201)
+  @ApiOperation({ summary: "Create a user" })
   @ApiCreatedResponse({
     description: "The record has been successfully created.",
     type: UserResponseDto,
@@ -44,6 +46,7 @@ export class UserController {
   @ApiBearerAuth()
   @Roles(UserRole.ADMIN)
   @Get()
+  @ApiOperation({ summary: "Get all users" })
   @ApiOkResponse({
     description: "Users found",
     example: {
@@ -70,6 +73,7 @@ export class UserController {
 
   @ApiBearerAuth()
   @Get(":id")
+  @ApiOperation({ summary: "Get a user" })
   @ApiOkResponse({
     description: "User found",
     example: {
@@ -89,6 +93,7 @@ export class UserController {
   @ApiBearerAuth()
   @Patch(":id")
   @HttpCode(200)
+  @ApiOperation({ summary: "Update a user" })
   @ApiParam({
     name: "id",
     type: Number,
@@ -130,6 +135,7 @@ export class UserController {
   @Roles(UserRole.ADMIN)
   @Delete(":id")
   @HttpCode(200)
+  @ApiOperation({ summary: "Remove a user" })
   @ApiOkResponse({
     description: "User was successfully removed",
     example: { message: "User with ID 5 was successfully removed" },
