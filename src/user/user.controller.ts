@@ -28,13 +28,14 @@ import { UserResponseDto } from "./dto/user-response.dto";
 
 @ApiTags("User")
 @Controller("user")
+@ApiBearerAuth()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Public()
   @Post()
   @HttpCode(201)
-  @ApiOperation({ summary: "Create a user" })
+  @ApiOperation({ summary: "Create a user", security: [] })
   @ApiCreatedResponse({
     description: "The record has been successfully created.",
     type: UserResponseDto,
@@ -43,7 +44,6 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @ApiBearerAuth()
   @Roles(UserRole.ADMIN)
   @Get()
   @ApiOperation({ summary: "Get all users" })
@@ -71,7 +71,6 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @ApiBearerAuth()
   @Get(":id")
   @ApiOperation({ summary: "Get a user" })
   @ApiOkResponse({
@@ -90,7 +89,6 @@ export class UserController {
     return this.userService.findOne(id);
   }
 
-  @ApiBearerAuth()
   @Patch(":id")
   @HttpCode(200)
   @ApiOperation({ summary: "Update a user" })
@@ -131,7 +129,6 @@ export class UserController {
     return this.userService.update(id, updateUserDto);
   }
 
-  @ApiBearerAuth()
   @Roles(UserRole.ADMIN)
   @Delete(":id")
   @HttpCode(200)
