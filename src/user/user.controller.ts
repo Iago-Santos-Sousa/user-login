@@ -8,6 +8,7 @@ import {
   Delete,
   HttpCode,
   ParseIntPipe,
+  Query,
 } from "@nestjs/common";
 import {
   ApiCreatedResponse,
@@ -25,6 +26,9 @@ import { Public } from "src/common/decorators/skipAuth.decorator";
 import { Roles } from "src/common/decorators/roles.decorator";
 import { UserRole } from "src/utils/enums";
 import { UserResponseDto } from "./dto/user-response.dto";
+import { ApiPaginatedResponse } from "src/common/decorators/api-paginated-response.decorator";
+import { UserDto } from "./dto/user.dto";
+import { PageDto, PageOptionsDto } from "src/common/dtos";
 
 @ApiTags("User")
 @Controller("user")
@@ -42,6 +46,15 @@ export class UserController {
   })
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
+  }
+
+  @Get("paginate")
+  @Roles(UserRole.ADMIN)
+  @ApiPaginatedResponse(UserDto)
+  async findUsersPaginated(
+    @Query() pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<UserDto>> {
+    return this.userService.findUsersPaginated(pageOptionsDto);
   }
 
   @Roles(UserRole.ADMIN)

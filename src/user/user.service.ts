@@ -13,6 +13,8 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { UserResponseDto } from "./dto/user-response.dto";
 import * as bcrypt from "bcrypt";
+import { PageDto, PageOptionsDto, PageMetaDto } from "src/common/dtos";
+import { UserDto } from "./dto/user.dto";
 const saltOrRounds = 10;
 
 @Injectable()
@@ -143,5 +145,33 @@ export class UserService {
     return {
       message: `User with ID ${user_id} was successfully removed`,
     };
+  }
+
+  async findUsersPaginated(
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<UserDto>> {
+    const queryBuilder = this.userRepository.createQueryBuilder("user");
+    console.log(
+      pageOptionsDto.page,
+      pageOptionsDto.skip,
+      pageOptionsDto.order,
+      pageOptionsDto.take,
+    );
+
+    console.log("conta: ", (pageOptionsDto.page - 1) * pageOptionsDto.take);
+
+    queryBuilder.withDeleted();
+
+    queryBuilder
+      .skip(pageOptionsDto.skip)
+      .take(pageOptionsDto.take)
+      .orderBy("user.user_id", pageOptionsDto.order);
+
+    // const [data, itemCount] = await queryBuilder.getManyAndCount();
+    const entities = await queryBuilder.getMany();
+    const itemCount = await queryBuilder.getCount();
+
+    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+    return new PageDto(entities, pageMetaDto);
   }
 }
