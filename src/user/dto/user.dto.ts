@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Exclude } from "class-transformer";
 
 export class UserDto {
   @ApiProperty()
@@ -13,12 +14,22 @@ export class UserDto {
   @ApiProperty()
   role: string;
 
-  @ApiProperty()
+  @Exclude()
   refresh_token?: string;
+
+  @Exclude()
+  password: string;
 
   @ApiProperty()
   created_at: Date;
 
   @ApiProperty()
   updated_at: Date;
+
+  @Exclude()
+  deleted_at: Date;
+
+  constructor(partial: Partial<UserDto>) {
+    Object.assign(this, partial);
+  }
 }

@@ -2,7 +2,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
-  Length,
+  // Length,
   MinLength,
   MaxLength,
   IsEnum,
@@ -41,9 +41,6 @@ export class CreateUserDto {
     default: "user",
   })
   @IsNotEmpty({ message: "O papel/função não pode estar vazio" })
-  @IsString({ message: "O papel/função deve ser uma string" })
-  @Length(4, 5, { message: "O papel/função deve ter entre 4 e 5 caracteres" })
-  @Transform(({ value }: { value: string }) => value?.trim())
   @IsEnum(UserRole, { message: "O papel deve ser user ou admin" })
   role: UserRole;
 

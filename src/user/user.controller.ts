@@ -9,6 +9,8 @@ import {
   HttpCode,
   ParseIntPipe,
   Query,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from "@nestjs/common";
 import {
   ApiCreatedResponse,
@@ -25,7 +27,12 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { Public } from "src/common/decorators/skipAuth.decorator";
 import { Roles } from "src/common/decorators/roles.decorator";
 import { UserRole } from "src/utils/enums";
-import { UserResponseDto } from "./dto/user-response.dto";
+import {
+  UserResponseDto,
+  UsersResponseDto,
+  UserCreatedResponseDto,
+  UserUpdatedResponseDto,
+} from "./dto/user-response.dto";
 import { ApiPaginatedResponse } from "src/common/decorators/api-paginated-response.decorator";
 import { UserDto } from "./dto/user.dto";
 import { PageDto, PageOptionsDto } from "src/common/dtos";
@@ -42,12 +49,13 @@ export class UserController {
   @ApiOperation({ summary: "Create a user", security: [] })
   @ApiCreatedResponse({
     description: "The record has been successfully created.",
-    type: UserResponseDto,
+    type: UserCreatedResponseDto,
   })
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get("paginate")
   @Roles(UserRole.ADMIN)
   @ApiPaginatedResponse(UserDto)
@@ -57,47 +65,18 @@ export class UserController {
     return this.userService.findUsersPaginated(pageOptionsDto);
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Roles(UserRole.ADMIN)
   @Get()
   @ApiOperation({ summary: "Get all users" })
-  @ApiOkResponse({
-    description: "Users found",
-    example: {
-      message: "Users found",
-      users: [
-        {
-          id: 1,
-          name: "John Doe",
-          email: "john.doe@example.com",
-          role: "user",
-        },
-        {
-          id: 2,
-          name: "John Doe 2",
-          email: "john.doe2@example.com",
-          role: "admin",
-        },
-      ],
-    },
-  })
+  @ApiOkResponse({ type: UsersResponseDto })
   async findAll() {
     return this.userService.findAll();
   }
 
   @Get(":id")
   @ApiOperation({ summary: "Get a user" })
-  @ApiOkResponse({
-    description: "User found",
-    example: {
-      message: "User found",
-      user: {
-        id: 1,
-        name: "John Doe",
-        email: "john.doe@example.com",
-        role: "user",
-      },
-    },
-  })
+  @ApiOkResponse({ type: UserResponseDto })
   async findOne(@Param("id", ParseIntPipe) id: number) {
     return this.userService.findOne(id);
   }
@@ -124,16 +103,7 @@ export class UserController {
     },
   })
   @ApiOkResponse({
-    description: "User with ID 5 updated",
-    example: {
-      message: "User with ID 5 updated",
-      user: {
-        user_id: 1,
-        name: "Jhon Doe Josh",
-        email: "jorge10@gmail.com",
-        role: "admin",
-      },
-    },
+    type: UserUpdatedResponseDto,
   })
   async update(
     @Param("id", ParseIntPipe) id: number,

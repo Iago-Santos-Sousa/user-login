@@ -1,24 +1,97 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, OmitType, PickType } from "@nestjs/swagger";
+import { Exclude } from "class-transformer";
+import { IsOptional } from "class-validator";
 
-export class UserResponseDto {
+export class UsersDto {
+  @ApiProperty({ example: 1 })
+  user_id: number;
+
+  @ApiProperty({ example: "John Doe" })
+  name: string;
+
+  @ApiProperty({
+    example: "john.doe@example.com",
+  })
+  email: string;
+
+  @ApiProperty({ example: "user" })
+  role: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  created_at?: Date;
+
+  @ApiProperty({ required: false })
+  updated_at?: Date;
+
+  @ApiProperty({ required: false })
+  @Exclude()
+  deleted_at?: Date;
+}
+
+export class UserCreatedResponseDto extends OmitType(UsersDto, [
+  "user_id",
+  "name",
+  "email",
+  "role",
+  "created_at",
+  "deleted_at",
+  "updated_at",
+] as const) {
   @ApiProperty({ example: "User created successfully" })
   message: string;
 
   @ApiProperty({
-    example: {
-      user_id: 1,
-      name: "John Doe",
-      email: "john.doe@example.com",
-      role: "user",
-    },
+    type: [PickType(UsersDto, ["user_id", "name", "email", "role"] as const)],
   })
-  user: {
-    user_id: number;
-    name: string;
-    email: string;
-    role: string;
-    created_at?: Date;
-    updated_at?: Date;
-    deleted_at?: Date;
-  };
+  user: Partial<UsersDto>;
+}
+
+export class UserUpdatedResponseDto extends UserCreatedResponseDto {
+  @ApiProperty({ example: "User updated" })
+  message: string = "User updated";
+}
+
+export class UserResponseDto {
+  @ApiProperty({ example: "User found" })
+  message: string;
+
+  @ApiProperty({
+    type: UsersDto,
+  })
+  user: Partial<UsersDto>;
+
+  constructor(message: string, user: UsersDto) {
+    this.message = message;
+    this.user = {
+      user_id: user.user_id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    };
+  }
+}
+
+export class UsersResponseDto {
+  @ApiProperty({ example: "Users retrieved successfully" })
+  message: string;
+
+  @ApiProperty({
+    type: [OmitType(UsersDto, ["deleted_at"] as const)],
+  })
+  users: Partial<UsersDto>[];
+
+  constructor(message: string, users: UsersDto[]) {
+    this.message = message;
+    this.users = users.map((user) => ({
+      user_id: user.user_id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    }));
+  }
 }

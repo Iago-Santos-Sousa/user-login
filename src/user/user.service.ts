@@ -11,7 +11,7 @@ import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { UserResponseDto } from "./dto/user-response.dto";
+import { UserResponseDto, UsersResponseDto } from "./dto/user-response.dto";
 import * as bcrypt from "bcrypt";
 import { PageDto, PageOptionsDto, PageMetaDto } from "src/common/dtos";
 import { UserDto } from "./dto/user.dto";
@@ -35,11 +35,8 @@ export class UserService {
         password: hashPassword,
       });
       const createdUser = await this.userRepository.save(user);
-      const { password, refresh_token, ...safeUser } = createdUser;
-      return {
-        message: "User created successfully",
-        user: safeUser,
-      };
+      // const { password, refresh_token, ...safeUser } = createdUser;
+      return new UserResponseDto("User created successfully", createdUser);
     } catch (error) {
       console.error(error);
       if (
@@ -51,10 +48,7 @@ export class UserService {
     }
   }
 
-  async findAll(): Promise<{
-    message: string;
-    users: Omit<User, "password" | "refresh_token">[];
-  }> {
+  async findAll(): Promise<UsersResponseDto> {
     const users = await this.userRepository.find({
       select: {
         name: true,
@@ -71,10 +65,7 @@ export class UserService {
     });
 
     if (users?.length === 0) throw new NotFoundException("No users found");
-    return {
-      message: "Users found",
-      users: users,
-    };
+    return new UsersResponseDto("Users found", users);
   }
 
   async findOne(user_id: number): Promise<UserResponseDto> {
@@ -95,6 +86,7 @@ export class UserService {
     });
 
     if (!user) throw new NotFoundException(`User with ID ${user_id} not found`);
+
     return {
       message: "User found",
       user,
@@ -158,8 +150,6 @@ export class UserService {
       pageOptionsDto.take,
     );
 
-    console.log("conta: ", (pageOptionsDto.page - 1) * pageOptionsDto.take);
-
     queryBuilder.withDeleted();
 
     queryBuilder
@@ -172,6 +162,9 @@ export class UserService {
     const itemCount = await queryBuilder.getCount();
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
-    return new PageDto(entities, pageMetaDto);
+    return new PageDto(
+      entities.map((user) => new UserDto(user)),
+      pageMetaDto,
+    );
   }
 }
