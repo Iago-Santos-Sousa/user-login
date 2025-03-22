@@ -29,22 +29,14 @@ export class UsersDto {
   deleted_at?: Date;
 }
 
-export class UserCreatedResponseDto extends OmitType(UsersDto, [
-  "user_id",
-  "name",
-  "email",
-  "role",
-  "created_at",
-  "deleted_at",
-  "updated_at",
-] as const) {
+export class UserCreatedResponseDto {
   @ApiProperty({ example: "User created successfully" })
   message: string;
 
   @ApiProperty({
     type: PickType(UsersDto, ["user_id", "name", "email", "role"] as const),
   })
-  user: Partial<UsersDto>;
+  user: Omit<UsersDto, "created_at" | "updated_at" | "deleted_at">;
 }
 
 export class UserUpdatedResponseDto extends UserCreatedResponseDto {
