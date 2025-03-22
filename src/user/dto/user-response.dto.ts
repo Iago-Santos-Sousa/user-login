@@ -42,7 +42,7 @@ export class UserCreatedResponseDto extends OmitType(UsersDto, [
   message: string;
 
   @ApiProperty({
-    type: [PickType(UsersDto, ["user_id", "name", "email", "role"] as const)],
+    type: PickType(UsersDto, ["user_id", "name", "email", "role"] as const),
   })
   user: Partial<UsersDto>;
 }
@@ -57,9 +57,9 @@ export class UserResponseDto {
   message: string;
 
   @ApiProperty({
-    type: UsersDto,
+    type: [OmitType(UsersDto, ["deleted_at"] as const)],
   })
-  user: Partial<UsersDto>;
+  user: UsersDto;
 
   constructor(message: string, user: UsersDto) {
     this.message = message;

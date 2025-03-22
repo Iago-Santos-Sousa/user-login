@@ -91,16 +91,6 @@ export class UserController {
   })
   @ApiBody({
     type: UpdateUserDto,
-    examples: {
-      example1: {
-        summary: "Partial update example",
-        value: {
-          name: "Jhon Doe Josh",
-          email: "jorge10@gmail.com",
-          role: "admin",
-        },
-      },
-    },
   })
   @ApiOkResponse({
     type: UserUpdatedResponseDto,
