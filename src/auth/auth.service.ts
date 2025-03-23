@@ -30,7 +30,14 @@ export class AuthService {
       roles: [user.role],
       email: user.email,
     };
-    const acess_token = await this.jwtService.signAsync(payload);
+
+    const acess_token = this.jwtService.sign(
+      {
+        ...payload,
+        type: "acess_token",
+      },
+      { expiresIn: process.env.JWT_EXPIRES },
+    );
 
     return {
       acess_token: acess_token,
