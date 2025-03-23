@@ -3,7 +3,9 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { UserService } from "src/user/user.service";
 import { JwtService } from "@nestjs/jwt";
 import { SigInResponseDto } from "./dto/signin-response.dto";
-import * as bcrypt from "bcrypt";
+import { scrypt as _scrypt } from "crypto";
+import { promisify } from "util";
+const scrypt = promisify(_scrypt);
 
 @Injectable()
 export class AuthService {
@@ -15,8 +17,13 @@ export class AuthService {
   async sigIn(email: string, pass: string): Promise<SigInResponseDto> {
     const user = await this.userService.findByEmail(email);
     if (!user) throw new UnauthorizedException();
-    const passwordMatch = await bcrypt.compare(pass, user.password);
-    if (!passwordMatch) throw new UnauthorizedException("Invalid credential!");
+
+    const [salt, storedHashPassword] = user.password.split(".");
+    const hash = (await scrypt(pass, salt, 32)) as Buffer;
+    if (storedHashPassword !== hash.toString("hex")) {
+      throw new UnauthorizedException();
+    }
+
     const payload = {
       sub: user.user_id,
       username: user.name,

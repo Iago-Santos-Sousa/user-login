@@ -13,10 +13,11 @@ import { User } from "./entities/user.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { UserResponseDto, UsersResponseDto } from "./dto/user-response.dto";
-import * as bcrypt from "bcrypt";
 import { PageDto, PageOptionsDto, PageMetaDto } from "src/common/dtos";
 import { UserDto } from "./dto/user.dto";
-const saltOrRounds = 10;
+import { randomBytes, scrypt as _scrypt } from "crypto";
+import { promisify } from "util";
+const scrypt = promisify(_scrypt);
 
 @Injectable()
 export class UserService {
@@ -31,14 +32,23 @@ export class UserService {
       if (existUser) {
         throw new HttpException("Email already exists", HttpStatus.CONFLICT);
       }
-      const hashPassword = await bcrypt.hash(
+
+      const salt = randomBytes(8).toString("hex"); // salt único por cadastro
+
+      const hashPassword = (await scrypt(
         createUserDto.password,
-        saltOrRounds,
-      );
+        salt,
+        32,
+      )) as Buffer;
+
+      // Junção do salt com a senha criptografada
+      const saltAndHashPassword = `${salt}.${hashPassword.toString("hex")}`;
+
       const user = this.userRepository.create({
         ...createUserDto,
-        password: hashPassword,
+        password: saltAndHashPassword,
       });
+
       const createdUser = await this.userRepository.save(user);
       // const { password, refresh_token, ...safeUser } = createdUser;
       return new UserResponseDto("User created successfully", createdUser);
@@ -96,14 +106,12 @@ export class UserService {
     };
   }
 
-  async findByEmail(email: string): Promise<User> {
+  async findByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { email: email },
       withDeleted: true,
     });
 
-    if (!user)
-      throw new NotFoundException(`User with Email: ${email} not found`);
     return user;
   }
 
