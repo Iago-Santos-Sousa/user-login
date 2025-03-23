@@ -4,7 +4,8 @@
 import {
   Injectable,
   NotFoundException,
-  ConflictException,
+  HttpException,
+  HttpStatus,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -26,6 +27,10 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     try {
+      const existUser = await this.findByEmail(createUserDto.email);
+      if (existUser) {
+        throw new HttpException("Email already exists", HttpStatus.CONFLICT);
+      }
       const hashPassword = await bcrypt.hash(
         createUserDto.password,
         saltOrRounds,
@@ -39,10 +44,8 @@ export class UserService {
       return new UserResponseDto("User created successfully", createdUser);
     } catch (error) {
       console.error(error);
-      if (
-        error?.sqlMessage?.includes(`Duplicate entry '${createUserDto.email}'`)
-      ) {
-        throw new ConflictException(`Email already exists`);
+      if (error instanceof HttpException) {
+        throw error;
       }
       throw error;
     }
