@@ -2,16 +2,16 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
 
 export class UserDto {
-  @ApiProperty()
+  @ApiProperty({ example: 1 })
   user_id: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: "Jhon Doe" })
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: "jhon.doe@gmail.com" })
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: "user" })
   role: string;
 
   @Exclude()
@@ -20,10 +20,10 @@ export class UserDto {
   @Exclude()
   password: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: new Date() })
   created_at: Date;
 
-  @ApiProperty()
+  @ApiProperty({ example: new Date() })
   updated_at: Date;
 
   @Exclude()

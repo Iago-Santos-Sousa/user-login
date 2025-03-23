@@ -1,6 +1,24 @@
+import { ApiProperty } from "@nestjs/swagger";
+import { Exclude } from "class-transformer";
+
 export class SigInResponseDto {
+  @ApiProperty({
+    example:
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE3LCJ1c2VybmFtZSI6IkpvcmdlMTIiLCJyb2xlcyI6WyJhZG1pbiJdLCJlbWFpbCI6ImpvcmdlMTIwQGdtYWlsLmNvbSIsImlhdCI6MTc0MjY5MTU1OSwiZXhwIjoxNzQyNjk1MTU5fQ.i0yukctJTrNglBhQRSsQKJVQ2LH_hoJ-dJ5auJHoq48",
+  })
   acess_token: string;
+
+  @Exclude()
   refresh_token?: string | null;
+
+  @ApiProperty({
+    example: {
+      sub: 17,
+      username: "Jhon Doe",
+      roles: ["admin"],
+      email: "jhon.doe@gmail.com",
+    },
+  })
   payload: {
     sub: number;
     username: string;
