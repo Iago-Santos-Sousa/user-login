@@ -7,7 +7,6 @@ import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { UserModule } from "./user/user.module";
 import { AuthModule } from "./auth/auth.module";
-import { RolesGuardModule } from "./roles-guard/roles-guard.module";
 import databaseConfig from "./config/database.config";
 
 @Module({
@@ -30,7 +29,6 @@ import databaseConfig from "./config/database.config";
       },
     }),
     AuthModule,
-    RolesGuardModule,
     UserModule,
   ],
   controllers: [AppController],
