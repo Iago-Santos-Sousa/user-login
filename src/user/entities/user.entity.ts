@@ -24,7 +24,7 @@ export class User {
   @Column("varchar", { length: 20 })
   role: string;
 
-  @Column({ nullable: true, default: "NULL" })
+  @Column({ nullable: true, default: null })
   refresh_token?: string;
 
   @CreateDateColumn({

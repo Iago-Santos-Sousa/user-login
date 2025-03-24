@@ -29,4 +29,26 @@ export class AuthController {
   async signIn(@Body() sigInDto: SigInDto) {
     return this.authService.sigIn(sigInDto.email, sigInDto.password);
   }
+
+  @Public()
+  @HttpCode(HttpStatus.CREATED)
+  @Post("refresh-token")
+  @ApiOperation({ summary: "Generate new access token for user" })
+  @ApiBody({
+    description: "refresh",
+    schema: {
+      type: "object",
+      properties: {
+        refresh_token: {
+          type: "string",
+        },
+      },
+    },
+  })
+  @ApiCreatedResponse({
+    type: SigInResponseDto,
+  })
+  async refreshToken(@Body() body: { refresh_token: string }) {
+    return this.authService.refreshToken(body.refresh_token);
+  }
 }

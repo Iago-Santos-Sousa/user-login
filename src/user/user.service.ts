@@ -106,6 +106,15 @@ export class UserService {
     };
   }
 
+  async findById(user_id: number): Promise<User | null> {
+    const user = await this.userRepository.findOne({
+      where: { user_id: user_id },
+      withDeleted: true,
+    });
+
+    return user;
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { email: email },
@@ -177,5 +186,11 @@ export class UserService {
       entities.map((user) => new UserDto(user)),
       pageMetaDto,
     );
+  }
+
+  async updateRefreshToken(userId: number, refreshToken: string) {
+    return this.userRepository.update(userId, {
+      refresh_token: refreshToken,
+    });
   }
 }
