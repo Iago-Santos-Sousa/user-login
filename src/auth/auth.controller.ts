@@ -5,6 +5,8 @@ import {
   ApiTags,
   ApiOperation,
 } from "@nestjs/swagger";
+import { CurrentUser } from "./current-user.decorator";
+import { CurrentUserDto } from "./current-user.dto";
 import { AuthService } from "./auth.service";
 import { SigInDto } from "./dto/signin.dto";
 import { Public } from "src/common/decorators/skipAuth.decorator";
@@ -17,7 +19,7 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post("login")
-  @ApiOperation({ summary: "Login" })
+  @ApiOperation({ summary: "Login", security: [] })
   @ApiBody({
     description: "Login user",
     type: SigInDto,
@@ -33,7 +35,7 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post("refresh-token")
-  @ApiOperation({ summary: "Generate new access token for user" })
+  @ApiOperation({ summary: "Generate new access token for user", security: [] })
   @ApiBody({
     description: "refresh",
     schema: {
@@ -41,6 +43,7 @@ export class AuthController {
       properties: {
         refresh_token: {
           type: "string",
+          example: "your refresh token",
         },
       },
     },
@@ -50,5 +53,25 @@ export class AuthController {
   })
   async refreshToken(@Body() body: { refresh_token: string }) {
     return this.authService.refreshToken(body.refresh_token);
+  }
+
+  @Post("logout")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Logout session user",
+  })
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        message: {
+          type: "string",
+          example: "User logged out successfully",
+        },
+      },
+    },
+  })
+  async logout(@CurrentUser() user: CurrentUserDto) {
+    return this.authService.logout(user.sub);
   }
 }

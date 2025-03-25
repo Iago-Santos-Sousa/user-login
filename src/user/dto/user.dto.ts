@@ -15,7 +15,7 @@ export class UserDto {
   role: string;
 
   @Exclude()
-  refresh_token?: string;
+  refresh_token?: string | null;
 
   @Exclude()
   password: string;

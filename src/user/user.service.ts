@@ -193,4 +193,14 @@ export class UserService {
       refresh_token: refreshToken,
     });
   }
+
+  async logout(user_id: number): Promise<{ message: string }> {
+    await this.userRepository.update(user_id, {
+      refresh_token: "",
+    });
+
+    return {
+      message: "User logged out successfully",
+    };
+  }
 }

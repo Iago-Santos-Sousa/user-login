@@ -43,15 +43,15 @@ export class AuthGuard implements CanActivate {
       });
       request["user"] = payload;
 
-      //Verifica a role do usuário
       const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(
         ROLES_KEY,
         [context.getHandler(), context.getClass()],
       );
       if (!requiredRoles) {
-        throw new ForbiddenException("Insufficient permissions");
+        return true;
       }
 
+      //Verifica a role do usuário
       const { user } = context.switchToHttp().getRequest();
       const hasRolePermission = requiredRoles.some((role) =>
         user?.roles?.includes(role),

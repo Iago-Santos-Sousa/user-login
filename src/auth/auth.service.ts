@@ -152,4 +152,8 @@ export class AuthService {
       throw new UnauthorizedException();
     }
   }
+
+  async logout(user_id: number) {
+    return this.userService.logout(user_id);
+  }
 }
