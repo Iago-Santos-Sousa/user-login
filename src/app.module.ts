@@ -7,14 +7,16 @@ import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { UserModule } from "./user/user.module";
 import { AuthModule } from "./auth/auth.module";
+import { EmailModule } from "./email/email.module";
 import databaseConfig from "./config/database.config";
+import emailConfig from "./config/email.config";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",
-      load: [databaseConfig],
+      load: [databaseConfig, emailConfig],
     }),
 
     TypeOrmModule.forRootAsync({
@@ -30,6 +32,7 @@ import databaseConfig from "./config/database.config";
     }),
     AuthModule,
     UserModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
