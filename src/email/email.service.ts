@@ -10,7 +10,6 @@ export class EmailService {
     try {
       const options: ISendMailOptions = {
         to: "iago.santos.sousa@gmail.com",
-        from: "iago.gulione@gmail.com",
         subject: "testando envio de email",
         text: "emial enviado",
         html: "<p>Olá</p>",
