@@ -15,7 +15,7 @@ export class EmailService {
         subject: "testando envio de email",
         template: path.resolve("templates", "reset-password"),
         context: {
-          message: "Testando template enviado.",
+          message: "Reset your password",
         },
       };
       const result = this.emailService.sendMail(options);
