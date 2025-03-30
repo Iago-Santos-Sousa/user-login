@@ -4,6 +4,7 @@ import {
   ApiBody,
   ApiTags,
   ApiOperation,
+  ApiOkResponse,
 } from "@nestjs/swagger";
 import { CurrentUser } from "./current-user.decorator";
 import { CurrentUserDto } from "./current-user.dto";
@@ -60,7 +61,7 @@ export class AuthController {
   @ApiOperation({
     summary: "Logout session user",
   })
-  @ApiBody({
+  @ApiOkResponse({
     schema: {
       type: "object",
       properties: {
