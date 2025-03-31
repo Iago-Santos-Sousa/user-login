@@ -24,8 +24,19 @@ export class User {
   @Column("varchar", { length: 20 })
   role: string;
 
-  @Column({ nullable: true, default: "" })
+  @Column("varchar", { nullable: true, default: "" })
   refresh_token?: string;
+
+  @Column("varchar", {
+    nullable: true,
+    default: null,
+    unique: true,
+    length: 255,
+  })
+  reset_token?: string;
+
+  @Column({ nullable: true, default: null, type: "bigint", unsigned: true })
+  reset_token_expiry?: number;
 
   @CreateDateColumn({
     type: "timestamp",
