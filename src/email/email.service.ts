@@ -28,7 +28,7 @@ export class EmailService {
     try {
       const options: ISendMailOptions = {
         to: infos.to,
-        subject: "Restore your password",
+        subject: infos.subject,
         template: path.resolve("templates", "reset-password"),
         context: {
           message: infos.linkURL,
@@ -72,6 +72,7 @@ export class EmailService {
 
     const options: ISendMailOptions & { linkURL: string } = {
       to: user.email,
+      subject: "Restore your password",
       linkURL: linkURL,
     };
 
