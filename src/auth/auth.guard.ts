@@ -9,6 +9,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
 import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
@@ -17,11 +18,13 @@ import { UserRole } from "src/utils/enums";
 import { ROLES_KEY } from "../common/decorators/roles.decorator";
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class JwtAuthGuard extends AuthGuard("jwt") implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private reflector: Reflector,
-  ) {}
+  ) {
+    super();
+  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -31,6 +34,12 @@ export class AuthGuard implements CanActivate {
     if (isPublic) {
       return true;
     }
+
+    const canActivate = await super.canActivate(context);
+    if (!canActivate) {
+      return false;
+    }
+
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
@@ -38,10 +47,10 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET,
-      });
-      request["user"] = payload;
+      // const payload = await this.jwtService.verifyAsync(token, {
+      //   secret: process.env.JWT_SECRET,
+      // });
+      // request["user"] = payload;
 
       const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(
         ROLES_KEY,
