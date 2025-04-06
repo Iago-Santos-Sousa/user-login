@@ -5,7 +5,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from "typeorm";
+
+import { Address } from "src/address/entities/address.entity";
 
 @Entity()
 export class User {
@@ -57,4 +61,8 @@ export class User {
     onUpdate: "CURRENT_TIMESTAMP(6)",
   })
   deleted_at: Date;
+
+  @ManyToOne(() => Address, (address) => address.users)
+  @JoinColumn({ name: "address_id" })
+  address: Address;
 }
