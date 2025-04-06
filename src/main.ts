@@ -33,15 +33,18 @@ async function bootstrap() {
     })
     .addSecurityRequirements("bearer")
     .build();
+
   const options: SwaggerDocumentOptions = {
     operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
   };
+
   const documentFactory = () =>
     SwaggerModule.createDocument(app, config, options);
   SwaggerModule.setup("api", app, documentFactory);
 
   await app.listen(process.env.APP_PORT ?? 3001);
 }
+
 bootstrap()
   .then(() =>
     console.log(`Server running on port: ${process.env.APP_PORT ?? 3001}`),
