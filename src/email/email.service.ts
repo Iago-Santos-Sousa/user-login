@@ -10,6 +10,8 @@ import { scrypt as _scrypt } from "crypto";
 import { promisify } from "util";
 const scrypt = promisify(_scrypt);
 
+type TEmailOptions = ISendMailOptions & { linkURL: string };
+
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
@@ -22,9 +24,7 @@ export class EmailService {
     private dataSource: DataSource,
   ) {}
 
-  async sendEmail(
-    infos: ISendMailOptions & { linkURL: string },
-  ): Promise<SentMessageInfo> {
+  async sendEmail(infos: TEmailOptions): Promise<SentMessageInfo> {
     try {
       const options: ISendMailOptions = {
         to: infos.to,
@@ -70,7 +70,7 @@ export class EmailService {
     console.log(hash);
     const linkURL: string = `http://localhost:3000/token?=${resetToken}`;
 
-    const options: ISendMailOptions & { linkURL: string } = {
+    const options: TEmailOptions = {
       to: user.email,
       subject: "Restore your password",
       linkURL: linkURL,
