@@ -7,8 +7,6 @@ import {
   HttpException,
   HttpStatus,
 } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -17,40 +15,35 @@ import { PageDto, PageOptionsDto, PageMetaDto } from "src/common/dtos";
 import { UserDto } from "./dto/user.dto";
 import { randomBytes, scrypt as _scrypt } from "crypto";
 import { promisify } from "util";
+import { UserRepository } from "./repositories/user.repository";
 const scrypt = promisify(_scrypt);
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {}
-
+  constructor(private readonly userRepository: UserRepository) {}
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     try {
-      const existUser = await this.findByEmail(createUserDto.email);
+      const existUser = await this.userRepository.findByEmail(
+        createUserDto.email,
+      );
       if (existUser) {
         throw new HttpException("Email already exists", HttpStatus.CONFLICT);
       }
 
-      const salt = randomBytes(8).toString("hex"); // salt único por cadastro
-
+      const salt = randomBytes(8).toString("hex"); // unique salt per registration
       const hashPassword = (await scrypt(
         createUserDto.password,
         salt,
         32,
       )) as Buffer;
 
-      // Junção do salt com a senha criptografada
+      // Join salt with encrypted password
       const saltAndHashPassword = `${salt}.${hashPassword.toString("hex")}`;
-
-      const user = this.userRepository.create({
+      const createdUser = await this.userRepository.create({
         ...createUserDto,
         password: saltAndHashPassword,
       });
 
-      const createdUser = await this.userRepository.save(user);
-      // const { password, refresh_token, ...safeUser } = createdUser;
       return new UserResponseDto("User created successfully", createdUser);
     } catch (error) {
       console.error(error);
@@ -60,46 +53,15 @@ export class UserService {
       throw error;
     }
   }
-
   async findAll(): Promise<UsersResponseDto> {
-    const users = await this.userRepository.find({
-      select: {
-        name: true,
-        email: true,
-        role: true,
-        created_at: true,
-        user_id: true,
-        deleted_at: false,
-        updated_at: true,
-        password: false,
-        refresh_token: false,
-      },
-      withDeleted: true, // Inclui registros soft-deleted
-    });
-
+    const users = await this.userRepository.findAll();
     if (users?.length === 0) throw new NotFoundException("No users found");
     return new UsersResponseDto("Users found", users);
   }
 
   async findOne(user_id: number): Promise<UserResponseDto> {
-    const user = await this.userRepository.findOne({
-      where: { user_id: user_id },
-      select: {
-        name: true,
-        email: true,
-        role: true,
-        created_at: true,
-        user_id: true,
-        deleted_at: false,
-        updated_at: true,
-        password: false,
-        refresh_token: false,
-      },
-      withDeleted: true,
-    });
-
+    const user = await this.userRepository.findOneById(user_id);
     if (!user) throw new NotFoundException(`User with ID ${user_id} not found`);
-
     return {
       message: "User found",
       user,
@@ -107,37 +69,24 @@ export class UserService {
   }
 
   async findById(user_id: number): Promise<User | null> {
-    const user = await this.userRepository.findOne({
-      where: { user_id: user_id },
-      withDeleted: true,
-    });
-
-    return user;
+    return this.userRepository.findByIdWithPassword(user_id);
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const user = await this.userRepository.findOne({
-      where: { email: email },
-      withDeleted: true,
-    });
-
-    return user;
+    return this.userRepository.findByEmail(email);
   }
-
   async update(
     user_id: number,
     updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    const user = await this.userRepository.findOne({
-      where: { user_id: user_id },
-      withDeleted: true,
-    });
-
+    const user = await this.userRepository.findByIdWithPassword(user_id);
     if (!user) {
       throw new NotFoundException(`User with id ${user_id} not found`);
     }
-    const mergeUpdatedUser = this.userRepository.merge(user, updateUserDto);
-    const updatedUser = await this.userRepository.save(mergeUpdatedUser);
+    const updatedUser = await this.userRepository.update(
+      user_id,
+      updateUserDto,
+    );
     const { password, refresh_token, ...safeUser } = updatedUser;
     return {
       message: `User with ID ${user_id} updated`,
@@ -146,19 +95,15 @@ export class UserService {
   }
 
   async remove(user_id: number): Promise<Pick<UserResponseDto, "message">> {
-    const user = await this.userRepository.findOne({
-      where: { user_id: user_id },
-      withDeleted: true,
-    });
+    const user = await this.userRepository.findByIdWithPassword(user_id);
     if (!user) {
       throw new NotFoundException(`User with ID ${user_id} not found`);
     }
-    await this.userRepository.delete(user_id);
+    await this.userRepository.remove(user_id);
     return {
       message: `User with ID ${user_id} was successfully removed`,
     };
   }
-
   async findUsersPaginated(
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<UserDto>> {
@@ -171,7 +116,6 @@ export class UserService {
     );
 
     queryBuilder.withDeleted();
-
     queryBuilder
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take)
@@ -180,7 +124,6 @@ export class UserService {
     // const [data, itemCount] = await queryBuilder.getManyAndCount();
     const entities = await queryBuilder.getMany();
     const itemCount = await queryBuilder.getCount();
-
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
     return new PageDto(
       entities.map((user) => new UserDto(user)),
@@ -189,16 +132,11 @@ export class UserService {
   }
 
   async updateRefreshToken(userId: number, refreshToken: string) {
-    return this.userRepository.update(userId, {
-      refresh_token: refreshToken,
-    });
+    return this.userRepository.updateRefreshToken(userId, refreshToken);
   }
 
   async logout(user_id: number): Promise<{ message: string }> {
-    await this.userRepository.update(user_id, {
-      refresh_token: "",
-    });
-
+    await this.userRepository.updateRefreshToken(user_id, "");
     return {
       message: "User logged out successfully",
     };
