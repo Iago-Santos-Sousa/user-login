@@ -1,14 +1,17 @@
 import { Controller, Get } from "@nestjs/common";
 import { AppService } from "./app.service";
-import { ApiExcludeController } from "@nestjs/swagger";
+import { ApiExcludeController, ApiOperation } from "@nestjs/swagger";
+import { Public } from "./common/decorators/skipAuth.decorator";
 
-@Controller()
-@ApiExcludeController()
+@Controller("status")
+// @ApiExcludeController()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @Public()
   @Get()
-  getHello(): string {
+  @ApiOperation({ summary: "API Status", security: [] })
+  getHello() {
     return this.appService.getHello();
   }
 }
