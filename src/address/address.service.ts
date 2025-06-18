@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAddressDto } from './dto/create-address.dto';
-import { UpdateAddressDto } from './dto/update-address.dto';
+import { Injectable } from "@nestjs/common";
+import { CreateAddressDto } from "./dto/create-address.dto";
+import { UpdateAddressDto } from "./dto/update-address.dto";
+import { AddressRepository } from "./repositories/address.repository";
 
 @Injectable()
 export class AddressService {
+  constructor(private readonly addressRepository: AddressRepository) {}
   create(createAddressDto: CreateAddressDto) {
-    return 'This action adds a new address';
+    return "This action adds a new address";
   }
 
   findAll() {

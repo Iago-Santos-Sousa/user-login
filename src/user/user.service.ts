@@ -53,6 +53,7 @@ export class UserService {
       throw error;
     }
   }
+
   async findAll(): Promise<UsersResponseDto> {
     const users = await this.userRepository.findAll();
     if (users?.length === 0) throw new NotFoundException("No users found");
@@ -75,6 +76,7 @@ export class UserService {
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findByEmail(email);
   }
+
   async update(
     user_id: number,
     updateUserDto: UpdateUserDto,
@@ -104,6 +106,7 @@ export class UserService {
       message: `User with ID ${user_id} was successfully removed`,
     };
   }
+
   async findUsersPaginated(
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<UserDto>> {

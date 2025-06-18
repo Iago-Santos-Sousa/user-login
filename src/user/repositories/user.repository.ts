@@ -64,6 +64,7 @@ export class UserRepository {
       withDeleted: true,
     });
   }
+
   async update(
     user_id: number,
     updateUserDto: UpdateUserDto | Partial<User>,
