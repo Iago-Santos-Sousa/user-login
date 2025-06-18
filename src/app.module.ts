@@ -8,7 +8,7 @@ import { DataSource } from "typeorm";
 import { UserModule } from "./user/user.module";
 import { AuthModule } from "./auth/auth.module";
 import { EmailModule } from "./email/email.module";
-import { AddressModule } from './address/address.module';
+import { AddressModule } from "./address/address.module";
 import databaseConfig from "./config/database.config";
 import emailConfig from "./config/email.config";
 

@@ -9,28 +9,27 @@ import {
 import { CurrentUser } from "./current-user.decorator";
 import { CurrentUserDto } from "./current-user.dto";
 import { AuthService } from "./auth.service";
-import { SigInDto } from "./dto/signin.dto";
+import { SignInDto } from "./dto/signin.dto";
 import { Public } from "src/common/decorators/skipAuth.decorator";
-import { SigInResponseDto } from "./dto/signin-response.dto";
+import { SignInResponseDto } from "./dto/signin-response.dto";
 @ApiTags("Auth")
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post("login")
   @ApiOperation({ summary: "Login", security: [] })
   @ApiBody({
     description: "Login user",
-    type: SigInDto,
+    type: SignInDto,
   })
   @ApiCreatedResponse({
     description: "User Login Information",
-    type: SigInResponseDto,
+    type: SignInResponseDto,
   })
-  async signIn(@Body() sigInDto: SigInDto) {
-    return this.authService.sigIn(sigInDto.email, sigInDto.password);
+  async signIn(@Body() signInDto: SignInDto) {
+    return this.authService.sigIn(signInDto.email, signInDto.password);
   }
 
   @Public()
@@ -50,7 +49,7 @@ export class AuthController {
     },
   })
   @ApiCreatedResponse({
-    type: SigInResponseDto,
+    type: SignInResponseDto,
   })
   async refreshToken(@Body() body: { refresh_token: string }) {
     return this.authService.refreshToken(body.refresh_token);

@@ -2,11 +2,11 @@ import { IsEmail, IsNotEmpty, IsString, Length } from "class-validator";
 import { Transform } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class SigInDto {
-  //Para validadores mais complexos como IsEmail, você passa primeiro as opções do validador (que podem estar vazias {}) e depois as opções gerais como a mensagem.
+export class SignInDto {
+  //For more complex validators like IsEmail, you first pass the validator options (which can be empty {}) and then the general options like the message.
   @ApiProperty({ example: "jhondoe@gmail.com" })
-  @IsNotEmpty({ message: "O email não pode estar vazio" })
-  @IsEmail({}, { message: "O email informado não é válido" })
+  @IsNotEmpty({ message: "Email cannot be empty" })
+  @IsEmail({}, { message: "The provided email is not valid" })
   @Transform(({ value }: { value: string }) => value?.trim())
   email: string;
 

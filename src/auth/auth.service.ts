@@ -2,7 +2,7 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { UserService } from "src/user/user.service";
 import { JwtService } from "@nestjs/jwt";
-import { SigInResponseDto } from "./dto/signin-response.dto";
+import { SignInResponseDto } from "./dto/signin-response.dto";
 import { scrypt as _scrypt, randomBytes } from "crypto";
 import { promisify } from "util";
 const scrypt = promisify(_scrypt);
@@ -22,7 +22,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async sigIn(email: string, pass: string): Promise<SigInResponseDto> {
+  async sigIn(email: string, pass: string): Promise<SignInResponseDto> {
     const user = await this.userService.findByEmail(email);
     if (!user) throw new UnauthorizedException();
 
@@ -81,7 +81,7 @@ export class AuthService {
     };
   }
 
-  async refreshToken(refresh_token: string): Promise<SigInResponseDto> {
+  async refreshToken(refresh_token: string): Promise<SignInResponseDto> {
     try {
       const decoded: TUserPayload = this.jwtService.verify(refresh_token, {
         secret: process.env.JWT_REFRESH_SECRET,
