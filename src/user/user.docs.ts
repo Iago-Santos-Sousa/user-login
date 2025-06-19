@@ -10,16 +10,16 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import {
   UserResponseDto,
   UsersResponseDto,
-  UserCreatedResponseDto,
   UserUpdatedResponseDto,
 } from "./dto/user-response.dto";
+import { CreateUserDto } from "./dto/create-user.dto";
 
 export const CreateUserDocs = () => {
   return applyDecorators(
     ApiOperation({ summary: "Create a user", security: [] }),
     ApiCreatedResponse({
       description: "The record has been successfully created.",
-      type: UserCreatedResponseDto,
+      type: CreateUserDto,
     }),
   );
 };

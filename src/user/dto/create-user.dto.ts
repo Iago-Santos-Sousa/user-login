@@ -20,6 +20,7 @@ export class CreateUserDto {
   name: string;
 
   //Para validadores mais complexos como IsEmail, você passa primeiro as opções do validador (que podem estar vazias {}) e depois as opções gerais como a mensagem.  @ApiProperty({ description: "User E-mail", example: "jhondoe@gmail.com" })
+  @ApiProperty({ description: "User E-mail", example: "jhon.doe@gmail.com " })
   @IsNotEmpty({ message: "Email cannot be empty" })
   @IsEmail({}, { message: "The provided email is not valid" })
   @Transform(({ value }: { value: string }) => value?.trim())
