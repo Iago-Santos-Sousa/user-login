@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Controller,
   Get,
@@ -29,6 +32,7 @@ import {
   UpdateUserByIdDocs,
   DeleteUserByIdDocs,
 } from "./user.docs";
+import { Ctx, EventPattern, Payload, RmqContext } from "@nestjs/microservices";
 
 @ApiTags("User")
 @Controller("user")
@@ -84,5 +88,21 @@ export class UserController {
   @DeleteUserByIdDocs()
   async remove(@Param("id", ParseIntPipe) id: number) {
     return this.userService.remove(id);
+  }
+
+  @EventPattern("message")
+  messageExample(@Payload() data: any, @Ctx() context: RmqContext) {
+    /* 
+      {
+        "pattern": "message",
+        "data": "mensagem"
+      } 
+    */
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+    console.log(`Pattern: ${context.getPattern()}`);
+    console.log(`Data: ${JSON.stringify(data)}`);
+    console.log("Canal(conexão): ", context.getChannelRef());
+    channel.ack(originalMsg);
   }
 }

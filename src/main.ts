@@ -1,6 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { ValidationPipe } from "@nestjs/common";
+import { MicroserviceOptions, Transport } from "@nestjs/microservices";
 import {
   SwaggerModule,
   DocumentBuilder,
@@ -8,6 +9,7 @@ import {
 } from "@nestjs/swagger";
 
 async function bootstrap() {
+  // Create the HTTP app for Swagger and REST endpoints
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(
@@ -38,11 +40,27 @@ async function bootstrap() {
     operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
   };
 
-  const documentFactory = () =>
-    SwaggerModule.createDocument(app, config, options);
-  SwaggerModule.setup("api", app, documentFactory);
+  const document = SwaggerModule.createDocument(app, config, options);
+  SwaggerModule.setup("api", app, document);
 
+  // Start the HTTP server
   await app.listen(process.env.APP_PORT ?? 3001);
+
+  // Conectando ao RabbitMQ para consumir mensagens(subscriber)
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: [`amqp://${"user"}:${"password"}@${"localhost"}:${"5672"}`],
+      queue: "ex",
+      queueOptions: {
+        durable: true,
+      },
+      noAck: false, // Garantir que as mensagens sejam reconhecidas(Reconhecimento de mensagem)
+      maxConnectionAttempts: 5, // Tentar reconectar 5 vezes
+    },
+  });
+
+  await app.startAllMicroservices();
 }
 
 bootstrap()
