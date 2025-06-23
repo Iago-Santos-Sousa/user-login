@@ -12,6 +12,8 @@ import { AddressModule } from "./address/address.module";
 import databaseConfig from "./config/database.config";
 import emailConfig from "./config/email.config";
 import { ClientsModule, Transport } from "@nestjs/microservices";
+import { redisStore } from "cache-manager-redis-yet";
+import { CacheModule } from "@nestjs/cache-manager";
 
 @Module({
   imports: [
@@ -57,6 +59,25 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
         inject: [ConfigService],
       },
     ]),
+
+    // Configuração do Redis
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        store: await redisStore({
+          socket: {
+            host:
+              configService.get<string>("REDIS_HOST", "localhost") ||
+              "localhost",
+            port: configService.get<number>("REDIS_PORT", 6379) || 6379,
+          },
+          password: configService.get<string>("REDIS_PASSWORD", "") || "",
+          ttl: 60 * 60, // Tempo padrão de expiração: 1 hora
+        }),
+      }),
+    }),
     AuthModule,
     UserModule,
     EmailModule,
