@@ -44,7 +44,7 @@ export class UserService {
         password: saltAndHashPassword,
       });
 
-      return new UserResponseDto("User created successfully", createdUser);
+      return new UserResponseDto(createdUser);
     } catch (error) {
       console.error(error);
       if (error instanceof HttpException) {
@@ -56,8 +56,7 @@ export class UserService {
 
   async findAll(): Promise<UsersResponseDto> {
     const users = await this.userRepository.findAll();
-    if (users?.length === 0) throw new NotFoundException("No users found");
-    return new UsersResponseDto("Users found", users);
+    return new UsersResponseDto(users);
   }
 
   async findOne(user_id: number): Promise<UserResponseDto> {
@@ -91,20 +90,16 @@ export class UserService {
     );
     const { password, refresh_token, ...safeUser } = updatedUser;
     return {
-      message: `User with ID ${user_id} updated`,
       user: safeUser,
     };
   }
 
-  async remove(user_id: number): Promise<Pick<UserResponseDto, "message">> {
+  async remove(user_id: number): Promise<void> {
     const user = await this.userRepository.findByIdWithPassword(user_id);
     if (!user) {
       throw new NotFoundException(`User with ID ${user_id} not found`);
     }
     await this.userRepository.remove(user_id);
-    return {
-      message: `User with ID ${user_id} was successfully removed`,
-    };
   }
 
   async findUsersPaginated(

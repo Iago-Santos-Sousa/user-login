@@ -24,7 +24,6 @@ export class UsersDto {
   @ApiProperty({ required: false })
   updated_at?: Date;
 
-  @ApiProperty({ required: false })
   @Exclude()
   deleted_at?: Date;
 }
@@ -46,15 +45,14 @@ export class UserUpdatedResponseDto extends UserCreatedResponseDto {
 
 export class UserResponseDto {
   @ApiProperty({ example: "User found" })
-  message: string;
+  message?: string;
 
   @ApiProperty({
     type: [OmitType(UsersDto, ["deleted_at"] as const)],
   })
   user: UsersDto;
 
-  constructor(message: string, user: UsersDto) {
-    this.message = message;
+  constructor(user: UsersDto) {
     this.user = {
       user_id: user.user_id,
       name: user.name,
@@ -68,15 +66,14 @@ export class UserResponseDto {
 
 export class UsersResponseDto {
   @ApiProperty({ example: "Users retrieved successfully" })
-  message: string;
+  message?: string;
 
   @ApiProperty({
     type: [OmitType(UsersDto, ["deleted_at"] as const)],
   })
   users: Partial<UsersDto>[];
 
-  constructor(message: string, users: UsersDto[]) {
-    this.message = message;
+  constructor(users: UsersDto[]) {
     this.users = users.map((user) => ({
       user_id: user.user_id,
       name: user.name,

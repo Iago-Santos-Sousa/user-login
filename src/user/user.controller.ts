@@ -44,8 +44,12 @@ export class UserController {
   @Post()
   @HttpCode(201)
   @CreateUserDocs()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    const data = await this.userService.create(createUserDto);
+    return {
+      message: "User created successfully",
+      data: data.user,
+    };
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -63,13 +67,21 @@ export class UserController {
   @Get()
   @GetAllUsersDocs()
   async findAll() {
-    return this.userService.findAll();
+    const data = await this.userService.findAll();
+    return {
+      message: "Users retrieved successfully",
+      data: data.users,
+    };
   }
 
   @Get(":id")
   @GetUserByIdDocs()
   async findOne(@Param("id", ParseIntPipe) id: number) {
-    return this.userService.findOne(id);
+    const data = await this.userService.findOne(id);
+    return {
+      message: "User found",
+      data: data.user,
+    };
   }
 
   @Patch(":id")
@@ -79,7 +91,11 @@ export class UserController {
     @Param("id", ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.userService.update(id, updateUserDto);
+    const data = await this.userService.update(id, updateUserDto);
+    return {
+      message: "User updated successfully",
+      data: data.user,
+    };
   }
 
   @Roles(UserRole.ADMIN)
@@ -87,7 +103,10 @@ export class UserController {
   @HttpCode(200)
   @DeleteUserByIdDocs()
   async remove(@Param("id", ParseIntPipe) id: number) {
-    return this.userService.remove(id);
+    await this.userService.remove(id);
+    return {
+      message: `User with ID ${id} was successfully removed`,
+    };
   }
 
   @EventPattern("message")
