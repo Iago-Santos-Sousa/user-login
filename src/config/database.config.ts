@@ -14,6 +14,7 @@ export default registerAs(
     database: process.env.DB_SCHEMA,
     entities: [User, Address],
     synchronize: Boolean(process.env.DB_SYNCHRONIZE),
+    poolSize: 10,
     // migrations: [`${__dirname}/migration/{.ts,*.js}`],
     // migrationsRun: true,
   }),
