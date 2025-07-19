@@ -13,7 +13,7 @@ export class RabbitMQService {
   async sendEmailMessage(message: string): Promise<void> {
     // this.client.emit<any>("message", message).pipe(timeout(5000))
     this.client
-      .emit<any>("message", message)
+      .emit<string, any>("message", message)
       .pipe(timeout(5000))
       .subscribe({
         next: (response) => {
