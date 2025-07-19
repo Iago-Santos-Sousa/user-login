@@ -10,10 +10,10 @@ export class RabbitMQService {
     @Inject("RABBITMQ_CLIENT") private readonly client: ClientProxy,
   ) {}
 
-  async sendEmailMessage(message: string): Promise<void> {
+  async sendEmailMessage(data: string): Promise<void> {
     // this.client.emit<any>("message", message).pipe(timeout(5000))
     this.client
-      .emit<string, any>("message", message)
+      .emit<string, any>("message", data)
       .pipe(timeout(5000))
       .subscribe({
         next: (response) => {
